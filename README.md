@@ -1,1 +1,1 @@
-# XZ-Windows-ngrok
+XZ-Windows-ngrok Creates a Windows Server 2022 using github actions and installs Ngrok Creates a TCP address with Ngrok and allows you to use the device for 6 hours If you want the device to stay on for 6 hours, never touch the open CMD window By İsmetemir
