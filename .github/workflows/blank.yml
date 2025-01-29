@@ -4,22 +4,44 @@ on: [push, workflow_dispatch]
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
     - name: Download
       run: Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
+
     - name: Extract
       run: Expand-Archive ngrok.zip
+
     - name: Auth
       run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+
     - name: Enable TS
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+
     - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
     - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Extract Cursor Pack
+      run: Expand-Archive -Path material_design_cursors_dark_by_jepricreations_dcilx80.zip -DestinationPath C:\Cursors
+
+    - name: Copy Cursor Files
+      run: xcopy C:\Cursors\material_design_cursors_dark\material_design_cursors_dark C:\Windows\Cursors /E /I /Y
+
+    - name: Install INF File
+      run: |
+        pnputil /add-driver Install.inf /install || rundll32.exe setupapi,InstallHinfSection DefaultInstall 132 Install.inf
+      shell: cmd
+
+    - name: Verify Installation
+      run: reg query "HKCU\Control Panel\Cursors"
+      shell: cmd
+
     - name: Create Tunnel
       run: .\ngrok\ngrok.exe tcp 3389
