@@ -1,60 +1,25 @@
-name: XZ-Windows
+name: CI
 
 on: [push, workflow_dispatch]
 
 jobs:
   build:
+
     runs-on: windows-latest
 
     steps:
     - name: Download
       run: Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
-
     - name: Extract
       run: Expand-Archive ngrok.zip
-
     - name: Auth
       run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
     - name: Enable TS
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
-
+      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
     - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
+    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
     - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
-
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
-    - name: Extract Cursor Pack
-      run: Expand-Archive -Path material_design_cursors_dark_by_jepricreations_dcilx80.zip -DestinationPath C:\Cursors
-
-    - name: Copy Cursor Files
-      run: xcopy C:\Cursors\material_design_cursors_dark\material_design_cursors_dark C:\Windows\Cursors /E /I /Y
-
-    - name: Set Default Cursors
-      run: |
-        reg add "HKCU\Control Panel\Cursors" /v Arrow /t REG_SZ /d "C:\\Windows\\Cursors\\account.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v Help /t REG_SZ /d "C:\\Windows\\Cursors\\help.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v AppStarting /t REG_SZ /d "C:\\Windows\\Cursors\\busy.ani" /f
-        reg add "HKCU\Control Panel\Cursors" /v Wait /t REG_SZ /d "C:\\Windows\\Cursors\\work.ani" /f
-        reg add "HKCU\Control Panel\Cursors" /v Crosshair /t REG_SZ /d "C:\\Windows\\Cursors\\cross.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v IBeam /t REG_SZ /d "C:\\Windows\\Cursors\\text.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v No /t REG_SZ /d "C:\\Windows\\Cursors\\unavailiable.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v SizeNS /t REG_SZ /d "C:\\Windows\\Cursors\\vert.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v SizeWE /t REG_SZ /d "C:\\Windows\\Cursors\\horz.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v UpArrow /t REG_SZ /d "C:\\Windows\\Cursors\\pointer.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v Hand /t REG_SZ /d "C:\\Windows\\Cursors\\link.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v NoDrop /t REG_SZ /d "C:\\Windows\\Cursors\\place.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v PrecisionSelect /t REG_SZ /d "C:\\Windows\\Cursors\\move.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v Default /t REG_SZ /d "C:\\Windows\\Cursors\\alternate.cur" /f
-        reg add "HKCU\Control Panel\Cursors" /v Account /t REG_SZ /d "C:\\Windows\\Cursors\\account.cur" /f
-
-    - name: Verify Cursor Installation
-      run: reg query "HKCU\Control Panel\Cursors"
-      shell: cmd
-
     - name: Create Tunnel
       run: .\ngrok\ngrok.exe tcp 3389
