@@ -34,12 +34,25 @@ jobs:
     - name: Copy Cursor Files
       run: xcopy C:\Cursors\material_design_cursors_dark\material_design_cursors_dark C:\Windows\Cursors /E /I /Y
 
-    - name: Install INF File
+    - name: Set Default Cursors
       run: |
-        pnputil /add-driver Install.inf /install || rundll32.exe setupapi,InstallHinfSection DefaultInstall 132 Install.inf
-      shell: cmd
+        reg add "HKCU\Control Panel\Cursors" /v Arrow /t REG_SZ /d "C:\\Windows\\Cursors\\account.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v Help /t REG_SZ /d "C:\\Windows\\Cursors\\help.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v AppStarting /t REG_SZ /d "C:\\Windows\\Cursors\\busy.ani" /f
+        reg add "HKCU\Control Panel\Cursors" /v Wait /t REG_SZ /d "C:\\Windows\\Cursors\\work.ani" /f
+        reg add "HKCU\Control Panel\Cursors" /v Crosshair /t REG_SZ /d "C:\\Windows\\Cursors\\cross.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v IBeam /t REG_SZ /d "C:\\Windows\\Cursors\\text.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v No /t REG_SZ /d "C:\\Windows\\Cursors\\unavailiable.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v SizeNS /t REG_SZ /d "C:\\Windows\\Cursors\\vert.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v SizeWE /t REG_SZ /d "C:\\Windows\\Cursors\\horz.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v UpArrow /t REG_SZ /d "C:\\Windows\\Cursors\\pointer.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v Hand /t REG_SZ /d "C:\\Windows\\Cursors\\link.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v NoDrop /t REG_SZ /d "C:\\Windows\\Cursors\\place.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v PrecisionSelect /t REG_SZ /d "C:\\Windows\\Cursors\\move.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v Default /t REG_SZ /d "C:\\Windows\\Cursors\\alternate.cur" /f
+        reg add "HKCU\Control Panel\Cursors" /v Account /t REG_SZ /d "C:\\Windows\\Cursors\\account.cur" /f
 
-    - name: Verify Installation
+    - name: Verify Cursor Installation
       run: reg query "HKCU\Control Panel\Cursors"
       shell: cmd
 
